@@ -1,0 +1,29 @@
+{
+  "name": "loja-online",
+  "version": "1.0.0",
+  "description": "Aplicação Backend para o meu projeto de ecommerce.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mateusrtw1/loja-online.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mateusrtw1/loja-online/issues"
+  },
+  "homepage": "https://github.com/mateusrtw1/loja-online#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
