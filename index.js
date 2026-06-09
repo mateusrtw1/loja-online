@@ -3,6 +3,8 @@ const app = express()
 
 const PORT = process.env.PORT || 3000
 
+app.use(express.json())
+
 app.get('/', (req, res) => {
     res.send('<h1>Bem-vindo à Loja Online!</h1>')
 })
@@ -15,12 +17,34 @@ app.get('/informacoes', (req, res) => {
     })
 })
 
-app.get('/produtos', (req, res) => {
-    res.json([
+const produtos = [
         { id: 1, nome: 'Notebook', categoria: 'Periféricos', preco: 3500.00 },
         { id: 2, nome: 'Mouse Gamer', categoria: 'Periféricos', preco: 150.00 },
         { id: 3, nome: 'Teclado Mecânico', categoria: 'Periféricos', preco: 280.00 }
-    ])
+]
+
+app.get('/produtos', (req, res) => {
+    res.json(produtos)
+})
+
+app.post('/produtos', (req, res) => {
+    const { id, nome, categoria, preco } = req.body
+
+    if(!nome || !categoria || preco === undefined) {
+        return res.status(400).json({
+            erro: 'nome, categoria e preco são obrigatórios'
+        })
+    }
+  
+    const novoProduto = {
+      id: produtos.length + 1,
+      nome,
+      categoria,
+      preco
+    }
+  
+    produtos.push(novoProduto)
+    res.status(201).json(novoProduto)
 })
 
 app.get('/categorias', (req, res) => {
