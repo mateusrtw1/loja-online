@@ -1,4 +1,5 @@
 const express = require('express')
+
 const app = express()
 
 const PORT = process.env.PORT || 3000
@@ -24,11 +25,21 @@ const produtos = [
 ]
 
 app.get('/produtos', (req, res) => {
+    const { categoria } = req.query
+
+    if (categoria) {
+        const filtrados = produtos.filter(
+            p => p.categoria.toLowerCase() === categoria.toLowerCase()
+        )
+
+        return res.json(filtrados)
+    }
+    
     res.json(produtos)
 })
 
 app.post('/produtos', (req, res) => {
-    const { id, nome, categoria, preco } = req.body
+    const { nome, categoria, preco } = req.body
 
     if(!nome || !categoria || preco === undefined) {
         return res.status(400).json({
@@ -57,6 +68,50 @@ app.get('/produtos/:id', (req, res) => {
     }
 
     res.json(produto)
+})
+
+app.put('/produtos/:id', (req, res) => {
+    const id = Number(req.params.id)
+    const index = produtos.findIndex(p => p.id === id)
+
+    if(index === -1) {
+        return res.status(404).json({ erro: 'Produto não encontrado' })
+    }
+
+    const { nome, categoria, preco } = req.body
+    
+    produtos[index] = { id, nome, categoria, preco }
+
+    res.json(produtos[index])
+})
+
+app.patch('/produtos/:id', (req, res) => {
+    const id = Number(req.params.id)
+    const index = produtos.findIndex(p => p.id === id)
+
+    if(index === -1) {
+        return res.status(404).json({ erro: 'Produto não encontrado' })
+    }
+
+    produtos[index] = {
+        ...produtos[index],
+        ...req.body,
+        id
+    }
+
+    res.json(produtos[index])
+})
+
+app.delete('/produtos/:id', (req, res) => {
+    const id = Number(req.params.id)
+    const index = produtos.findIndex(p => p.id === id)
+
+    if (index === -1) {
+        return res.status(404).json({ erro: 'Produto não encontrado' })
+      }
+
+      produtos.splice(index, 1)
+      res.status(204).send()
 })
 
 app.get('/categorias', (req, res) => {
