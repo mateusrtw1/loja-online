@@ -6,6 +6,19 @@ const PORT = process.env.PORT || 3000
 
 app.use(express.json())
 
+app.use((req, res, next) => {
+    const horario = new Date().toLocaleTimeString('pt-BR')
+
+    res.on('finish', () => {
+        console.log(
+            `[${horario}] loja-ecommerce-online | ${req.method} ${req.path} | Status: ${res.statusCode}`
+        )
+    })
+
+    req.horario = horario
+    next()
+})
+
 app.get('/', (req, res) => {
     res.send('<h1>Bem-vindo à Loja Online!</h1>')
 })
@@ -14,7 +27,8 @@ app.get('/informacoes', (req, res) => {
     res.json({
         projeto: 'Loja Ecommerce Online',
         descricao: 'Aplicação Backend para o meu projeto de ecommerce',
-        status: 'online'
+        status: 'online',
+        horario: req.horario
     })
 })
 
