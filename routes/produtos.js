@@ -21,8 +21,9 @@ router.get('/', (req, res) => {
     res.json(produtos)
 })
 
-router.get('/:id', (req, res) => {
-    const id = Number(req.params.id)
+router.get('/:id', (req, res, next) => {
+    try {
+        const id = Number(req.params.id)
 
     const produto = produtos.find(p => p.id === id)
 
@@ -33,6 +34,9 @@ router.get('/:id', (req, res) => {
     }
 
     res.json(produto)
+    } catch (err) {
+        next(err)
+    }
 })
 
 router.post('/', (req, res) => {
