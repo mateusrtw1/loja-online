@@ -7,101 +7,125 @@ const categorias = [
   { id: 3, nome: 'Acessórios' }
 ]
 
-router.get('/categorias', (req, res) => {
-  res.json(categorias)
+router.get('/categorias', (req, res, next) => {
+  try {
+    res.json(categorias)
+  } catch (err) {
+    next(err)
+  }
 })
 
-router.get('/categorias/:id', (req, res) => {
-  const id = Number(req.params.id)
+router.get('/categorias/:id', (req, res, next) => {
+  try {
+    const id = Number(req.params.id)
 
-  const categoria = categorias.find(c => c.id === id)
+    const categoria = categorias.find(c => c.id === id)
 
-  if (!categoria) {
-    return res.status(404).json({
-      erro: 'Categoria não encontrada'
-    })
+    if (!categoria) {
+      const err = new Error('Categoria não encontrada')
+      err.status = 404
+      throw err
+    }
+
+    res.json(categoria)
+  } catch (err) {
+    next(err)
   }
-
-  res.json(categoria)
 })
 
-router.post('/categorias', (req, res) => {
-  const { nome } = req.body
+router.post('/categorias', (req, res, next) => {
+  try {
+    const { nome } = req.body
 
-  if (!nome) {
-    return res.status(400).json({
-      erro: 'Nome é obrigatório'
-    })
+    if (!nome) {
+      const err = new Error('Nome é obrigatório')
+      err.status = 400
+      throw err
+    }
+
+    const novaCategoria = {
+      id: categorias.length + 1,
+      nome
+    }
+
+    categorias.push(novaCategoria)
+
+    res.status(201).json(novaCategoria)
+  } catch (err) {
+    next(err)
   }
-
-  const novaCategoria = {
-    id: categorias.length + 1,
-    nome
-  }
-
-  categorias.push(novaCategoria)
-
-  res.status(201).json(novaCategoria)
 })
 
-router.put('/categorias/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const index = categorias.findIndex(c => c.id === id)
+router.put('/categorias/:id', (req, res, next) => {
+  try {
+    const id = Number(req.params.id)
+    const index = categorias.findIndex(c => c.id === id)
 
-  if (index === -1) {
-    return res.status(404).json({
-      erro: 'Categoria não encontrada'
-    })
+    if (index === -1) {
+      const err = new Error('Categoria não encontrada')
+      err.status = 404
+      throw err
+    }
+
+    const { nome } = req.body
+
+    if (!nome) {
+      const err = new Error('Nome é obrigatório')
+      err.status = 400
+      throw err
+    }
+
+    categorias[index] = {
+      id,
+      nome
+    }
+
+    res.json(categorias[index])
+  } catch (err) {
+    next(err)
   }
-
-  const { nome } = req.body
-
-  if (!nome) {
-    return res.status(400).json({
-      erro: 'Nome é obrigatório'
-    })
-  }
-
-  categorias[index] = {
-    id,
-    nome
-  }
-
-  res.json(categorias[index])
 })
 
-router.patch('/categorias/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const index = categorias.findIndex(c => c.id === id)
+router.patch('/categorias/:id', (req, res, next) => {
+  try {
+    const id = Number(req.params.id)
+    const index = categorias.findIndex(c => c.id === id)
 
-  if (index === -1) {
-    return res.status(404).json({
-      erro: 'Categoria não encontrada'
-    })
+    if (index === -1) {
+      const err = new Error('Categoria não encontrada')
+      err.status = 404
+      throw err
+    }
+
+    categorias[index] = {
+      ...categorias[index],
+      ...req.body,
+      id
+    }
+
+    res.json(categorias[index])
+  } catch (err) {
+    next(err)
   }
-
-  categorias[index] = {
-    ...categorias[index],
-    ...req.body,
-    id
-  }
-
-  res.json(categorias[index])
 })
 
-router.delete('/categorias/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const index = categorias.findIndex(c => c.id === id)
+router.delete('/categorias/:id', (req, res, next) => {
+  try {
+    const id = Number(req.params.id)
+    const index = categorias.findIndex(c => c.id === id)
 
-  if (index === -1) {
-    return res.status(404).json({
-      erro: 'Categoria não encontrada'
-    })
+    if (index === -1) {
+      const err = new Error('Categoria não encontrada')
+      err.status = 404
+      throw err
+    }
+
+    categorias.splice(index, 1)
+
+    res.status(204).send()
+  } catch (err) {
+    next(err)
   }
-
-  categorias.splice(index, 1)
-
-  res.status(204).send()
 })
 
 module.exports = router
