@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express')
 
 const app = express()
@@ -9,7 +11,11 @@ app.use(express.json())
 app.use((req, res, next) => {
   const horario = new Date().toLocaleTimeString('pt-BR')
   req.horario = horario
-  console.log(`[${horario}] ${req.method} ${req.path}`)
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`[${horario}] ${req.method} ${req.path}`)
+  }
+
   next()
 })
 
@@ -25,6 +31,14 @@ app.get('/', (req, res) => {
   res.json({
     projeto: 'Loja Ecommerce Online',
     status: 'online'
+  })
+})
+
+app.get('/saude', (req, res) => {
+  res.json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
   })
 })
 
