@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const prisma = require('../lib/prisma')
 
 const produtos = [
   { id: 1, nome: 'Notebook', categoria: 'Periféricos', preco: 3500.00 },
@@ -7,7 +8,7 @@ const produtos = [
   { id: 3, nome: 'Teclado Mecânico', categoria: 'Periféricos', preco: 280.00 }
 ]
 
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
     const { categoria } = req.query
 
@@ -19,46 +20,50 @@ router.get('/', (req, res, next) => {
       return res.json(filtrados)
     }
 
+    const produtos = await prisma.produtos.findMany();
     res.json(produtos)
   } catch (err) {
     next(err)
   }
 })
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
     const id = Number(req.params.id)
 
-    const produto = produtos.find(p => p.id === id)
+    const produtos = await prisma.produtos.findUnique({
+      where: { id }
+    })
 
-    if (!produto) {
+    if (!produtos) {
       const err = new Error('Produto não encontrado')
       err.status = 404
       throw err
     }
 
-    res.json(produto)
+    res.json(produtos)
   } catch (err) {
     next(err)
   }
 })
 
-router.post('/', (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
-    const { nome, categoria, preco } = req.body
+    console.log(req.body)
+    const { nome, preco } = req.body
 
-    if (!nome || !categoria || preco === undefined) {
+    if (!nome || preco === undefined) {
       const err = new Error('nome, categoria e preco são obrigatórios')
       err.status = 400
       throw err
     }
 
-    const novoProduto = {
-      id: produtos.length + 1,
-      nome,
-      categoria,
-      preco
-    }
+    const novoProduto = await prisma.produtos.create({
+      data: {
+        nome,
+        preco
+      },
+    });
 
     produtos.push(novoProduto)
 
@@ -68,33 +73,32 @@ router.post('/', (req, res, next) => {
   }
 })
 
-router.put('/:id', (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
+  console.log("bateu aq")
+
   try {
     const id = Number(req.params.id)
-    const index = produtos.findIndex(p => p.id === id)
+    const produtos = await prisma.produtos.findUnique({
+      where: { id }
+    })
 
-    if (index === -1) {
+    if (!produtos) {
       const err = new Error('Produto não encontrado')
       err.status = 404
       throw err
     }
 
-    const { nome, categoria, preco } = req.body
+    const { nome, preco } = req.body
 
-    if (!nome || !categoria || preco === undefined) {
-      const err = new Error('nome, categoria e preco são obrigatórios')
-      err.status = 400
-      throw err
-    }
+    const produtoAtualizado = await prisma.produtos.update({
+      where: {id},
+      data: { 
+        nome, 
+        preco 
+      }
+    })
 
-    produtos[index] = {
-      id,
-      nome,
-      categoria,
-      preco
-    }
-
-    res.json(produtos[index])
+    res.json(produtoAtualizado)
   } catch (err) {
     next(err)
   }
@@ -123,20 +127,25 @@ router.patch('/:id', (req, res, next) => {
   }
 })
 
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
   try {
     const id = Number(req.params.id)
-    const index = produtos.findIndex(p => p.id === id)
+    const produtoEncontrado = await prisma.produtos.findUnique({
+      where: { id }
+    })
 
-    if (index === -1) {
+    if (!produtoEncontrado) {
       const err = new Error('Produto não encontrado')
       err.status = 404
       throw err
     }
 
-    produtos.splice(index, 1)
+    //produtos.splice(index, 1)
+    await prisma.produtos.delete({
+      where: { id }
+    })
 
-    res.status(204).send()
+    res.status(204).send("Produto encontrado!!")
   } catch (err) {
     next(err)
   }
