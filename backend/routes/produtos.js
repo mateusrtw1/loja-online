@@ -49,8 +49,7 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   try {
-    console.log(req.body)
-    const { nome, preco } = req.body
+    const { nome, preco, categoriasIds } = req.body
 
     if (!nome || preco === undefined) {
       const err = new Error('nome, categoria e preco são obrigatórios')
@@ -62,10 +61,15 @@ router.post('/', async (req, res, next) => {
       data: {
         nome,
         preco
-      },
+      }
     });
 
-    produtos.push(novoProduto)
+    await prisma.produtosCategorias.createMany({
+      data: categoriasIds.map(categoriaId => ({
+        produtosId: novoProduto.id,
+        categoriaId: categoriaId
+      }))
+    })
 
     res.status(201).json(novoProduto)
   } catch (err) {

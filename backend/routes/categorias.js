@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const prisma = require('../lib/prisma')
 
 const categorias = [
   { id: 1, nome: 'Informática' },

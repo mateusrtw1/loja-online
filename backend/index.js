@@ -24,10 +24,22 @@ app.use((req, res, next) => {
 const produtosRoutes = require('./routes/produtos')
 const categoriasRoutes = require('./routes/categorias')
 const informacoesRoutes = require('./routes/informacoes')
+const usuariosRoutes = require('./routes/usuarios')
+const pedidosRoutes = require('./routes/pedidos')
+const cuponsRoutes = require('./routes/cupons')
+const enderecosRoutes = require('./routes/enderecos')
+const favoritosRoutes = require('./routes/favoritos')
+const carrinhoRoutes = require("./routes/carrinho")
 
 app.use('/produtos', produtosRoutes)
-app.use('/', categoriasRoutes)
-app.use('/', informacoesRoutes)
+app.use('/categorias', categoriasRoutes)
+app.use('/informacoes', informacoesRoutes)
+app.use('./usuarios', usuariosRoutes)
+app.use('./pedidos', pedidosRoutes)
+app.use('/cupons', cuponsRoutes)
+app.use('./enderecos', enderecosRoutes)
+app.use('/favoritos', favoritosRoutes)
+app.use('/carrinho', carrinhoRoutes)
 
 app.get('/', (req, res) => {
   res.json({
