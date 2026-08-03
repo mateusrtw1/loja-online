@@ -1,10 +1,8 @@
--- CreateTable
 CREATE TABLE "Categoria" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "nome" TEXT NOT NULL
 );
 
--- CreateTable
 CREATE TABLE "Produtos" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "nome" TEXT NOT NULL,
@@ -12,7 +10,6 @@ CREATE TABLE "Produtos" (
     "disponivel" BOOLEAN NOT NULL DEFAULT true
 );
 
--- CreateTable
 CREATE TABLE "Informacoes" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "nome" TEXT NOT NULL,
@@ -20,7 +17,6 @@ CREATE TABLE "Informacoes" (
     "status" BOOLEAN NOT NULL DEFAULT true
 );
 
--- CreateTable
 CREATE TABLE "Usuarios" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "nome" TEXT NOT NULL,
@@ -28,7 +24,6 @@ CREATE TABLE "Usuarios" (
     "senha" TEXT NOT NULL
 );
 
--- CreateTable
 CREATE TABLE "Pedidos" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "usuarioId" INTEGER NOT NULL,

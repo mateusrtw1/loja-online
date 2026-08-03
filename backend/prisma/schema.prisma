@@ -23,3 +23,18 @@ model Informacoes {
     horario    DateTime
     status     Boolean  @default(true)
 }
+
+model Usuarios {
+  id       Int       @id @default(autoincrement())
+  nome     String
+  email    String    @unique
+  senha    String
+}
+
+model Pedidos {
+  id          Int      @id @default(autoincrement())
+  usuarioId   Int
+  produtoId   Int
+  quantidade  Int
+  total       Float
+}
