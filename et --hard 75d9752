@@ -1,0 +1,20 @@
+[33m1c595ca[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m frontend em js
+[33m4638940[m adicionando back e front
+[33mdf4bda0[m atualizando back e front
+[33m1761f4a[m adicionando frontend
+[33m598f230[m cjuntando as pastas no backend
+[33m00f29f0[m adicionando códigos em rotas e controllers
+[33m26ac0ce[m feat: adicionar rotas e controllers de produtos, categorias, usuários e pedidos
+[33m8d523ca[m criando pastas, arquivos e adicionando códigos
+[33m9a64385[m feat: adicionando CRUD com ORM ao projeto
+[33m75d9752[m E11: banco SQLite criado com primeira tabela
+[33mf1bf9d2[m E09+10: dotenv e consolidação do Bloco 2 - Checkpoint 2
+[33m71c357d[m E08: adicionando o try/catch nas rotas
+[33me9fae11[m E08: tratamento de erros com try/catch
+[33mb3505ba[m E07: rotas separadas com Express Router
+[33m178f2fc[m E06: middleware de log
+[33m09b602d[m E05: CRUD completo - PUT e DELETE
+[33m9e6b0e6[m E04: busca por ID e filtro por query param
+[33ma46b320[m E03: rotas GET e POST com Postman
+[33m47c1768[m E02: primeiro servidor com rotas iniciais
+[33me26b2f4[m Initial commit
