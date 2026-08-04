@@ -3,9 +3,9 @@ const router = express.Router()
 const prisma = require('../lib/prisma')
 
 const categorias = [
-  { id: 1, nome: 'Informática' },
-  { id: 2, nome: 'Periféricos' },
-  { id: 3, nome: 'Acessórios' }
+  { id: 1, nome: 'Roupa' },
+  { id: 2, nome: 'Roupa' },
+  { id: 3, nome: 'Roupa' }
 ]
 
 router.get('/categorias', (req, res, next) => {

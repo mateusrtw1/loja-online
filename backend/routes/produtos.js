@@ -3,9 +3,9 @@ const router = express.Router()
 const prisma = require('../lib/prisma')
 
 const produtos = [
-  { id: 1, nome: 'Notebook', categoria: 'Periféricos', preco: 3500.00 },
-  { id: 2, nome: 'Mouse Gamer', categoria: 'Periféricos', preco: 150.00 },
-  { id: 3, nome: 'Teclado Mecânico', categoria: 'Periféricos', preco: 280.00 }
+  { id: 1, nome: 'Camisa Santos FC', categoria: 'Roupa', preco: 500.00 },
+  { id: 2, nome: 'Camisa Santos FC II', categoria: 'Roupa', preco: 250.00 },
+  { id: 3, nome: 'Camisa Santos FC III', categoria: 'Roupa', preco: 190.00 }
 ]
 
 router.get('/', async (req, res, next) => {
