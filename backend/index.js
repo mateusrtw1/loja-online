@@ -32,6 +32,7 @@ const favoritosRoutes = require('./routes/favoritos')
 const carrinhoRoutes = require("./routes/carrinho")
 const pagamentosRoutes = require('./routes/pagamentos')
 const fretesRoutes = require('./routes/fretes')
+const authRoutes = require('./routes/auth')
 
 
 app.use('/produtos', produtosRoutes)
@@ -45,6 +46,7 @@ app.use('/favoritos', favoritosRoutes)
 app.use('/carrinho', carrinhoRoutes)
 app.use('/pagamentos', pagamentosRoutes)
 app.use('/fretes', fretesRoutes)
+app.use('/auth', authRoutes)
 
 app.get('/', (req, res) => {
   res.json({

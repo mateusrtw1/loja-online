@@ -1,21 +1,21 @@
 const express = require('express')
-const router = express.router()
+const router = express.Router()
 const prisma = require('../lib/prisma')
 
 router.get('/', async (req, res, next) => {
     try {
-        const carrinhos = await prisma.carrinhos.findMany({
+        const carrinho = await prisma.carrinho.findMany({
             include: {
                 usuario: true,
                 itens: {
                     include: {
-                        produtos: true
+                        produto: true
                     }
                 }
             }
         })
 
-        res.json(carrinhos)
+        res.json(carrinho)
     } catch (err) {
         next(err)
     }
@@ -31,7 +31,7 @@ router.get('/:id', async (req, res, next) => {
                 usuario: true,
                 itens: {
                     include: {
-                        produtos: true
+                        produto: true
                     }
                 }
             }
@@ -64,7 +64,7 @@ router.post('/', async (req, res, next) => {
 
 router.put('/:id', async (req, res, next) => {
     try {
-        const id = number(req.params.id)
+        const id = Number(req.params.id)
 
         const { usuarioId } = req.body
 
