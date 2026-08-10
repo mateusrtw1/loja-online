@@ -6,19 +6,30 @@ const db = require ('./database')
 
 const app = express()
 
+const jwt = require('jsonwebtoken')
+
 const PORT = process.env.PORT || 3000
 
 app.use(express.json())
 
+const authRoutes = require('./routes/auth')
+app.use('/auth', authRoutes)
+
 app.use((req, res, next) => {
-  const horario = new Date().toLocaleTimeString('pt-BR')
-  req.horario = horario
+  const token = req.headers['authorization']
+    ?.replace('Bearer ', '')
 
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`[${horario}] ${req.method} ${req.path}`)
-  }
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if(err) {
+        if(err.name === 'TokenExpiredError') {
+          return res.status(401).json({ erro: 'Token expirado' });
+        }
+        return res.status(403).json({ erro: 'Token inválido' });
+      }
 
-  next()
+      req.usuarios = decoded;
+      next();
+    })
 })
 
 const produtosRoutes = require('./routes/produtos')
@@ -32,8 +43,6 @@ const favoritosRoutes = require('./routes/favoritos')
 const carrinhoRoutes = require("./routes/carrinho")
 const pagamentosRoutes = require('./routes/pagamentos')
 const fretesRoutes = require('./routes/fretes')
-const authRoutes = require('./routes/auth')
-
 
 app.use('/produtos', produtosRoutes)
 app.use('/categorias', categoriasRoutes)
@@ -46,7 +55,6 @@ app.use('/favoritos', favoritosRoutes)
 app.use('/carrinho', carrinhoRoutes)
 app.use('/pagamentos', pagamentosRoutes)
 app.use('/fretes', fretesRoutes)
-app.use('/auth', authRoutes)
 
 app.get('/', (req, res) => {
   res.json({
@@ -77,6 +85,8 @@ app.use((err, req, res, next) => {
 
   res.status(status).json({ erro: mensagem })
 })
+
+
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`)
