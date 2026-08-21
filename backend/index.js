@@ -7,10 +7,12 @@ const db = require ('./database')
 const app = express()
 
 const jwt = require('jsonwebtoken')
+const cors = require('cors')
 
 const PORT = process.env.PORT || 3000
 
 app.use(express.json())
+app.use(cors());
 
 const authRoutes = require('./routes/auth')
 app.use('/auth', authRoutes)
@@ -24,6 +26,7 @@ app.use((req, res, next) => {
         if(err.name === 'TokenExpiredError') {
           return res.status(401).json({ erro: 'Token expirado' });
         }
+        console.log(err)
         return res.status(403).json({ erro: 'Token inválido' });
       }
 

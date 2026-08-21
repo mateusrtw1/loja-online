@@ -6,7 +6,7 @@ const prisma = require('../lib/prisma')
 
 router.post('/register', async (req, res, next) => {
     try {
-        const { nome, senha, email, telefone } = req.body
+        const { nome, senha, email, telefone, cpf } = req.body
 
         const senhaHash = await argon2.hash(senha, {
             type: argon2.argon2id,
@@ -20,7 +20,8 @@ router.post('/register', async (req, res, next) => {
                 nome,
                 senha: senhaHash,
                 email,
-                telefone
+                telefone,
+                cpf
             }
         })
 
@@ -28,7 +29,8 @@ router.post('/register', async (req, res, next) => {
             id: usuarioCriado.id,
             nome: usuarioCriado.nome,
             email: usuarioCriado.email,
-            telefone: usuarioCriado.telefone
+            telefone: usuarioCriado.telefone,
+            cpf: usuarioCriado.cpf
         })
     } catch (err) {
         next (err)

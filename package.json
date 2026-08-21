@@ -1,6 +1,10 @@
 {
   "dependencies": {
     "argon2": "^0.45.1",
+    "cors": "^2.8.6",
     "jsonwebtoken": "^9.0.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19"
   }
 }

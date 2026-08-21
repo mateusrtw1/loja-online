@@ -50,6 +50,7 @@ model Usuarios {
   email      String       @unique
   senha      String
   telefone   String
+  cpf        String?      @unique
   is_admin      Boolean   @default(false)
   pedidos    Pedidos[]
   favoritos  Favoritos[]
