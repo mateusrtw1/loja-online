@@ -36,6 +36,8 @@ function autenticarToken(req, res, next) {
     });
   }
 
+  console.log(req.headers.authorization)
+
   const token = authorization.replace("Bearer ", "");
 
   if (!token) {

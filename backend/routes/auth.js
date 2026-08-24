@@ -1,13 +1,14 @@
 const express = require("express");
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
-
 const router = express.Router();
-
 const prisma = require("../lib/prisma");
 
 router.post("/register", async (req, res, next) => {
   try {
+    console.log("=== REGISTER ===");
+    console.log("BODY RECEBIDO:", req.body);
+
     const {
       nome,
       senha,
@@ -16,9 +17,15 @@ router.post("/register", async (req, res, next) => {
       cpf
     } = req.body;
 
-    if (!nome || !senha || !email) {
+    console.log("nome:", nome);
+    console.log("email:", email);
+    console.log("cpf:", cpf);
+    console.log("telefone:", telefone);
+    console.log("senha existe:", !!senha);
+
+    if (!nome || !senha || !email || !cpf) {
       return res.status(400).json({
-        erro: "Nome, e-mail e senha são obrigatórios"
+        erro: "Nome, e-mail, CPF e senha são obrigatórios"
       });
     }
 
@@ -46,10 +53,12 @@ router.post("/register", async (req, res, next) => {
         nome,
         senha: senhaHash,
         email,
-        telefone,
-        cpf
+        telefone: telefone || null,
+        cpf: cpf || null
       }
     });
+
+    console.log("USUÁRIO CRIADO:", usuarioCriado.id);
 
     return res.status(201).json({
       id: usuarioCriado.id,
@@ -60,17 +69,24 @@ router.post("/register", async (req, res, next) => {
     });
 
   } catch (err) {
-    console.error("Erro no cadastro:", err);
+    console.error("=== ERRO NO CADASTRO ===");
+    console.error(err);
     next(err);
   }
 });
 
 router.post("/login", async (req, res, next) => {
   try {
+    console.log("=== LOGIN ===");
+    console.log("BODY RECEBIDO:", req.body);
+
     const {
       email,
       senha
     } = req.body;
+
+    console.log("email:", email);
+    console.log("senha existe:", !!senha);
 
     if (!email || !senha) {
       return res.status(400).json({
@@ -78,11 +94,13 @@ router.post("/login", async (req, res, next) => {
       });
     }
 
-    const usuario = await prisma.usuarios.findUnique({
+    const usuario = await prisma.usuarios.findFirst({
       where: {
         email
       }
     });
+
+    console.log(usuario)
 
     if (!usuario) {
       return res.status(401).json({
@@ -118,6 +136,8 @@ router.post("/login", async (req, res, next) => {
       }
     );
 
+    console.log("LOGIN REALIZADO:", usuario.email);
+
     return res.status(200).json({
       token,
       usuario: {
@@ -130,7 +150,8 @@ router.post("/login", async (req, res, next) => {
     });
 
   } catch (err) {
-    console.error("Erro no login:", err);
+    console.error("=== ERRO NO LOGIN ===");
+    console.error(err);
     next(err);
   }
 });
