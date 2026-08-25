@@ -1,6 +1,7 @@
 const express = require("express");
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
+
 const router = express.Router();
 const prisma = require("../lib/prisma");
 
@@ -54,18 +55,28 @@ router.post("/register", async (req, res, next) => {
         senha: senhaHash,
         email,
         telefone: telefone || null,
-        cpf: cpf || null
+        cpf: cpf || null,
+        is_admin: false
       }
     });
 
-    console.log("USUÁRIO CRIADO:", usuarioCriado.id);
+    console.log(
+      "USUÁRIO CRIADO:",
+      usuarioCriado.id
+    );
+
+    console.log(
+      "É ADMIN:",
+      usuarioCriado.is_admin
+    );
 
     return res.status(201).json({
       id: usuarioCriado.id,
       nome: usuarioCriado.nome,
       email: usuarioCriado.email,
       telefone: usuarioCriado.telefone,
-      cpf: usuarioCriado.cpf
+      cpf: usuarioCriado.cpf,
+      is_admin: usuarioCriado.is_admin
     });
 
   } catch (err) {
@@ -94,13 +105,16 @@ router.post("/login", async (req, res, next) => {
       });
     }
 
-    const usuario = await prisma.usuarios.findFirst({
+    const usuario = await prisma.usuarios.findUnique({
       where: {
         email
       }
     });
 
-    console.log(usuario)
+    console.log(
+      "USUÁRIO ENCONTRADO:",
+      usuario
+    );
 
     if (!usuario) {
       return res.status(401).json({
@@ -128,15 +142,27 @@ router.post("/login", async (req, res, next) => {
     const token = jwt.sign(
       {
         id: usuario.id,
-        email: usuario.email
+        email: usuario.email,
+        is_admin: usuario.is_admin
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: process.env.JWT_EXPIRES_IN || "1d"
+        expiresIn:
+          process.env.JWT_EXPIRES_IN || "1d"
       }
     );
 
-    console.log("LOGIN REALIZADO:", usuario.email);
+    console.log(
+      "LOGIN REALIZADO:",
+      usuario.email
+    );
+
+    console.log(
+      "TIPO DE USUÁRIO:",
+      usuario.is_admin
+        ? "ADMIN"
+        : "CLIENTE"
+    );
 
     return res.status(200).json({
       token,
@@ -145,7 +171,8 @@ router.post("/login", async (req, res, next) => {
         nome: usuario.nome,
         email: usuario.email,
         telefone: usuario.telefone,
-        cpf: usuario.cpf
+        cpf: usuario.cpf,
+        is_admin: usuario.is_admin
       }
     });
 
