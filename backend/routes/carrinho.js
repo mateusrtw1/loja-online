@@ -1,97 +1,229 @@
-const express = require('express')
+const express = require("express")
 const router = express.Router()
-const prisma = require('../lib/prisma')
+const prisma = require("../lib/prisma")
 
-router.get('/', async (req, res, next) => {
+router.get("/", async (req, res, next) => {
     try {
-        const carrinho = await prisma.carrinho.findMany({
+        const usuariosId = Number(req.usuarios.id)
+
+        const itens = await prisma.carrinho.findMany({
+            where: {
+                usuariosId
+            },
             include: {
-                usuario: true,
-                itens: {
-                    include: {
-                        produto: true
-                    }
-                }
+                produtos: true
+            },
+            orderBy: {
+                id: "asc"
             }
         })
 
-        res.json(carrinho)
+        const total = itens.reduce((soma, item) => {
+            return soma + Number(item.produtos.preco) * item.quantidade
+        }, 0)
+
+        const quantidadeItens = itens.reduce((soma, item) => {
+            return soma + item.quantidade
+        }, 0)
+
+        res.json({
+            itens,
+            total,
+            quantidadeItens
+        })
     } catch (err) {
         next(err)
     }
 })
 
-router.get('/:id', async (req, res, next) => {
+router.post("/", async (req, res, next) => {
     try {
-        const id = Number(req.params.id)
+        const usuariosId = Number(req.usuarios.id)
+        const produtoId = Number(req.body.produtoId)
+        const quantidade = Number(req.body.quantidade || 1)
 
-        const carrinho = await prisma.carrinho.findUnique({
-            where: { id },
-            include: {
-                usuario: true,
-                itens: {
-                    include: {
-                        produto: true
-                    }
+        if (!produtoId) {
+            return res.status(400).json({
+                erro: "produtoId é obrigatório"
+            })
+        }
+
+        if (quantidade <= 0) {
+            return res.status(400).json({
+                erro: "Quantidade inválida"
+            })
+        }
+
+        const produto = await prisma.produtos.findUnique({
+            where: {
+                id: produtoId
+            }
+        })
+
+        if (!produto) {
+            return res.status(404).json({
+                erro: "Produto não encontrado"
+            })
+        }
+
+        if (produto.estoque <= 0) {
+            return res.status(400).json({
+                erro: "Produto sem estoque"
+            })
+        }
+
+        const itemExistente = await prisma.carrinho.findUnique({
+            where: {
+                usuariosId_produtosId: {
+                    usuariosId,
+                    produtosId: produtoId
                 }
             }
         })
 
-        if(!carrinho)
-            return res.status(404).json({ erro: 'Carrinho não encontrado.'})
+        let item
 
-        res.json(carrinho)
+        if (itemExistente) {
+            const novaQuantidade =
+                itemExistente.quantidade + quantidade
+
+            if (novaQuantidade > produto.estoque) {
+                return res.status(400).json({
+                    erro: `Quantidade indisponível. Estoque disponível: ${produto.estoque}`
+                })
+            }
+
+            item = await prisma.carrinho.update({
+                where: {
+                    id: itemExistente.id
+                },
+                data: {
+                    quantidade: novaQuantidade
+                },
+                include: {
+                    produtos: true
+                }
+            })
+        } else {
+            if (quantidade > produto.estoque) {
+                return res.status(400).json({
+                    erro: `Quantidade indisponível. Estoque disponível: ${produto.estoque}`
+                })
+            }
+
+            item = await prisma.carrinho.create({
+                data: {
+                    usuariosId,
+                    produtosId: produtoId,
+                    quantidade
+                },
+                include: {
+                    produtos: true
+                }
+            })
+        }
+
+        res.status(201).json(item)
     } catch (err) {
-        next (err)
+        next(err)
     }
 })
 
-router.post('/', async (req, res, next) => {
+router.patch("/:id", async (req, res, next) => {
     try {
-        const { usuarioId } = req.body
+        const id = Number(req.params.id)
+        const usuariosId = Number(req.usuarios.id)
+        const quantidade = Number(req.body.quantidade)
 
-        const carrinho = await prisma.carrinho.create({
-            data: {
-                usuarioId
+        if (!quantidade || quantidade <= 0) {
+            return res.status(400).json({
+                erro: "Quantidade inválida"
+            })
+        }
+
+        const item = await prisma.carrinho.findFirst({
+            where: {
+                id,
+                usuariosId
+            },
+            include: {
+                produtos: true
             }
         })
 
-        res.status(201).json(carrinho)
-    } catch (err) {
-        next (err)
-    }
-})
+        if (!item) {
+            return res.status(404).json({
+                erro: "Item não encontrado no carrinho"
+            })
+        }
 
-router.put('/:id', async (req, res, next) => {
-    try {
-        const id = Number(req.params.id)
+        if (quantidade > item.produtos.estoque) {
+            return res.status(400).json({
+                erro: `Quantidade indisponível. Estoque disponível: ${item.produtos.estoque}`
+            })
+        }
 
-        const { usuarioId } = req.body
-
-        const carrinho = await prisma.carrinho.update({
-            where: { id },
+        const itemAtualizado = await prisma.carrinho.update({
+            where: {
+                id
+            },
             data: {
-                usuarioId
+                quantidade
+            },
+            include: {
+                produtos: true
             }
         })
 
-        res.json(carrinho)
+        res.json(itemAtualizado)
     } catch (err) {
-        next (err)
+        next(err)
     }
 })
 
-router.delete('/:id', async (req, res, next) => {
+router.delete("/:id", async (req, res, next) => {
     try {
         const id = Number(req.params.id)
+        const usuariosId = Number(req.usuarios.id)
+
+        const item = await prisma.carrinho.findFirst({
+            where: {
+                id,
+                usuariosId
+            }
+        })
+
+        if (!item) {
+            return res.status(404).json({
+                erro: "Item não encontrado no carrinho"
+            })
+        }
 
         await prisma.carrinho.delete({
-            where: { id }
+            where: {
+                id
+            }
         })
 
         res.sendStatus(204)
     } catch (err) {
-        next (err)
+        next(err)
+    }
+})
+
+router.delete("/", async (req, res, next) => {
+    try {
+        const usuariosId = Number(req.usuarios.id)
+
+        await prisma.carrinho.deleteMany({
+            where: {
+                usuariosId
+            }
+        })
+
+        res.sendStatus(204)
+    } catch (err) {
+        next(err)
     }
 })
 
