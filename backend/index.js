@@ -1,15 +1,17 @@
 require("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-
 const app = express();
-
+const path = require("path")
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cors());
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"))
+)
 
 const authRoutes = require("./routes/auth");
 

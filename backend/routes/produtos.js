@@ -1,6 +1,27 @@
 const express = require("express")
 const router = express.Router()
+const multer = require("multer")
+const path = require("path")
+const crypto = require("crypto")
 const prisma = require("../lib/prisma")
+
+const storage = multer.diskStorage({
+  destination: function (req, res, cb) {
+    cb(null, "uploads/")
+  },
+
+  filename: function (req, file, cb) {
+    const extensao = path.extname(file.originalname)
+
+    const nomeArquivo = crypto
+      .randomBytes(32)
+      .toString("hex")
+
+    cb(null, `${nomeArquivo}${extensao}`)
+  }
+})
+
+const upload = multer({ storage: storage })
 
 router.get("/", async (req, res, next) => {
   try {
@@ -72,7 +93,7 @@ router.get("/:id", async (req, res, next) => {
   }
 })
 
-router.post("/", async (req, res, next) => {
+router.post("/", upload.single("imagem"), async (req, res, next) => {
   try {
     const {
       nome,
@@ -87,12 +108,14 @@ router.post("/", async (req, res, next) => {
       descricao,
       preco,
       precoOriginal,
-      imagem,
       estoque,
       destaque,
       novo,
       categoriasId
-    } = req.body
+    } = req.body;
+
+
+    const imagem = req.file.filename;
 
     if (
       !nome ||
@@ -162,7 +185,7 @@ router.post("/", async (req, res, next) => {
   }
 })
 
-router.put("/:id", async (req, res, next) => {
+router.put("/:id", upload.single("imagem"), async (req, res, next) => {
   try {
     const id = Number(req.params.id)
 
