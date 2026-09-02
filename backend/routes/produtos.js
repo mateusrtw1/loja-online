@@ -169,8 +169,8 @@ router.post("/", upload.single("imagem"), async (req, res, next) => {
         precoOriginal: Number(precoOriginal),
         imagem: imagem || "",
         estoque: Number(estoque),
-        destaque: destaque ?? false,
-        novo: novo ?? false,
+        destaque: Boolean(destaque),
+        novo: Boolean(novo),
         categoriasId: Number(categoriasId)
       }
     })
@@ -190,9 +190,7 @@ router.put("/:id", upload.single("imagem"), async (req, res, next) => {
     const id = Number(req.params.id)
 
     const produto = await prisma.produtos.findUnique({
-      where: {
-        id
-      }
+      where: { id }
     })
 
     if (!produto) {
@@ -214,7 +212,6 @@ router.put("/:id", upload.single("imagem"), async (req, res, next) => {
       descricao,
       preco,
       precoOriginal,
-      imagem,
       estoque,
       destaque,
       novo,
@@ -222,9 +219,7 @@ router.put("/:id", upload.single("imagem"), async (req, res, next) => {
     } = req.body
 
     const produtoAtualizado = await prisma.produtos.update({
-      where: {
-        id
-      },
+      where: { id },
       data: {
         ...(nome !== undefined && { nome }),
         ...(clube !== undefined && { clube }),
@@ -236,22 +231,31 @@ router.put("/:id", upload.single("imagem"), async (req, res, next) => {
         ...(marca !== undefined && { marca }),
         ...(cor !== undefined && { cor }),
         ...(descricao !== undefined && { descricao }),
+
         ...(preco !== undefined && {
           preco: Number(preco)
         }),
+
         ...(precoOriginal !== undefined && {
           precoOriginal: Number(precoOriginal)
         }),
-        ...(imagem !== undefined && { imagem }),
+
+        ...(req.file && {
+          imagem: req.file.filename
+        }),
+
         ...(estoque !== undefined && {
           estoque: Number(estoque)
         }),
+
         ...(destaque !== undefined && {
-          destaque
+          destaque: destaque === "true"
         }),
+
         ...(novo !== undefined && {
-          novo
+          novo: novo === "true"
         }),
+
         ...(categoriasId !== undefined && {
           categoriasId: Number(categoriasId)
         })
@@ -264,6 +268,7 @@ router.put("/:id", upload.single("imagem"), async (req, res, next) => {
     next(err)
   }
 })
+
 
 router.delete("/:id", async (req, res, next) => {
   try {
